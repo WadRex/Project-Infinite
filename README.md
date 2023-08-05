@@ -1,2 +1,2 @@
-# Project-Infinite
+# Project Infinite
 Project Infinite
