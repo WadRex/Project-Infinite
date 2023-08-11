@@ -18,6 +18,9 @@ character_counts = {}
 lines_found = 0
 lines_written = 0
 
+# Initialize Variable to Keep Temporary Character Name
+temp_character_name = None
+
 # Define Function to Save Content of a Label Block
 def save_contents():
     # Access Global Variables
@@ -129,6 +132,36 @@ for root, dirs, files in os.walk(input_dir):
                         label_indentation = None
                         label_name = None
 
+                    # If Inside an Open Quote (i.e., a Multi-line Quote)
+                    if quote_open:                        
+                        # Accumulate the Current Line's Content to the Ongoing Quote
+                        temp_quote += " " + line_stripped  
+
+                        # Check if the Current Line Ends with a Double-Quote, Signifying End of Multi-line Quote
+                        if line_stripped.endswith('"'):
+                            # Mark Quote as Closed
+                            quote_open = False
+
+                            # If Character Detected, Append Name and Quote
+                            if temp_character_name:
+                                label_block_contents.append(f"{temp_character_name} \"{temp_quote.strip()}")
+
+                                # Update Quote Count for the Character
+                                character_counts[temp_character_name] = character_counts.get(temp_character_name, 0) + 1
+
+                                # Reset Temporary Character Name
+                                temp_character_name = None
+
+                            # Otherwise Append Quote
+                            else:
+                                label_block_contents.append(temp_quote)
+
+                            # Reset the Accumulation
+                            temp_quote = ""
+                        else:
+                            # Continue to the Next Line since We're Still Inside a Multi-line Quote
+                            continue
+
                     # Process the Contents within the Label Block
                     if label_block_found is True and label_indentation <= current_indentation:
                         # Handle Indentation within Unwanted Blocks
@@ -144,21 +177,6 @@ for root, dirs, files in os.walk(input_dir):
                         if line_stripped.startswith("elif") or line_stripped.startswith("else"):
                             unwanted_block_found = True
                             continue
-                        
-                        # If Inside an Open Quote (i.e., a Multi-line Quote)
-                        if quote_open:
-                            # Accumulate the Current Line's Content to the Ongoing Quote
-                            temp_quote += " " + line_stripped
-
-                            # Check if the Current Line Ends with a Double-Quote, Signifying End of Multi-line Quote
-                            if line_stripped.endswith('"'):
-                                # Mark Quote as Closed and Reset the Accumulation
-                                quote_open = False
-                                line_untrailed = temp_quote
-                                temp_quote = ""
-                            else:
-                                # Continue to the Next Line since We're Still Inside a Multi-line Quote
-                                continue
 
                         # Process the Actual Dialogues and Narrations
                         if unwanted_block_found is False:
@@ -213,6 +231,20 @@ for root, dirs, files in os.walk(input_dir):
                                     # Begin a New Multi-line Quote Accumulation
                                     quote_open = True
                                     temp_quote = line_untrailed
+
+                                # Check For Lines That Might Start a Multi-Line Quote For a Character
+                                else:
+                                    # Attempt to Match the Current Line With the Multi-Line Character Quote Pattern
+                                    multiline_char_quote = re.match(r'(\w+)\s+"(.*?)(?!")$', line_untrailed)
+
+                                    # If Matched, Extract The Character Name And The Beginning Of The Quote
+                                    if multiline_char_quote:                                        
+                                        temp_character_name = multiline_char_quote.group(1)
+                                        temp_quote = multiline_char_quote.group(2)
+                                        
+                                        # Mark The Quote As Open Since It's a Multi-Line Quote
+                                        quote_open = True
+
 
                 # Save Remaining Contents After File Parsing   
                 save_contents()
