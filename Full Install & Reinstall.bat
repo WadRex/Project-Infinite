@@ -45,16 +45,30 @@ for /d %%D in ("%~dp0Project Infinite\*") do (
 )
 
 for %%F in ("%~dp0Project Infinite\1. Prepare Dataset\*.*") do (
-    if not "%%~nxF"=="1. Extract Files.py" if not "%%~nxF"=="create_dataset.py" if not "%%~nxF"=="extract_dialogue.py" del "%%F"
+    if not "%%~nxF"=="1. Extract & Decompile (.rpa & .rpyc) Files.py" if not "%%~nxF"=="2. Extract Text from (.rpy) Files.py" del "%%F"
 )
 for /d %%D in ("%~dp0Project Infinite\1. Prepare Dataset\*") do (
-    if /i not "%%~nxD"=="Input (.rpa & .rpyc)" rd /s /q "%%D"
+    if /i not "%%~nxD"=="Files (.rpa & .rpyc)" if /i not "%%~nxD"=="Files (.rpy)" if /i not "%%~nxD"=="Files (.txt)" rd /s /q "%%D"
 )
 
-for %%F in ("%~dp0Project Infinite\1. Prepare Dataset\Input (.rpa & .rpyc)\*.*") do (
-    del "%%F"
+for %%F in ("%~dp0Project Infinite\1. Prepare Dataset\Files (.rpa & .rpyc)\*.*") do (
+    if not "%%~nxF"==".gitkeep" del "%%F"
 )
-for /d %%D in ("%~dp0Project Infinite\1. Prepare Dataset\Input (.rpa & .rpyc)\*") do (
+for /d %%D in ("%~dp0Project Infinite\1. Prepare Dataset\Files (.rpa & .rpyc)\*") do (
+    rd /s /q "%%D"
+)
+
+for %%F in ("%~dp0Project Infinite\1. Prepare Dataset\Files (.rpy)\*.*") do (
+    if not "%%~nxF"==".gitkeep" del "%%F"
+)
+for /d %%D in ("%~dp0Project Infinite\1. Prepare Dataset\Files (.rpy)\*") do (
+    rd /s /q "%%D"
+)
+
+for %%F in ("%~dp0Project Infinite\1. Prepare Dataset\Files (.txt)\*.*") do (
+    if not "%%~nxF"==".gitkeep" del "%%F"
+)
+for /d %%D in ("%~dp0Project Infinite\1. Prepare Dataset\Files (.txt)\*") do (
     rd /s /q "%%D"
 )
 

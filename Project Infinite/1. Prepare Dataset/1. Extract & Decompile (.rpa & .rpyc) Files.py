@@ -3,10 +3,20 @@ import os
 import subprocess
 
 # Define the Directory for Input Files
-input_dir = ".\Input (.rpa & .rpyc)"
+input_dir = ".\Files (.rpa & .rpyc)"
 
 # Define the Directory for Output Files
-output_dir = ".\Output"
+output_dir = ".\Files (.rpy)"
+
+# Check if Input Directory Exists
+if not os.path.exists(input_dir):
+    print(f"Directory '{input_dir}' does not exist!")
+    exit()
+
+# Check if Input Directory is Empty
+if not any([f for f in os.listdir(input_dir) if not f.startswith(".")]):
+    print(f"Directory '{input_dir}' is empty!")
+    exit()
 
 # Walk Through All Files and Subdirectories in the Input Directory
 for root, dirs, files in os.walk(input_dir):
