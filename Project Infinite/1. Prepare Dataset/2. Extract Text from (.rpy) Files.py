@@ -31,9 +31,8 @@ def save_contents():
         # Construct the File Name for the Current Label
         filename = os.path.join(output_dir, label_name + '.txt')
 
-        # Create Output Directory if it Does Not Exist
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir, exist_ok=True)
+        # Create Output Folder if Required
+        os.makedirs(output_dir, exist_ok=True)
 
         # Increment the Count of Lines Found
         lines_found += len(label_block_contents)
