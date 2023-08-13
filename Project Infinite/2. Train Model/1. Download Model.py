@@ -6,7 +6,7 @@ import tqdm
 # Define Function to Download a Specific File
 def download_file(file_name):
     # Create Model Directory if Required
-    os.makedirs("./Model", exist_ok=True)
+    os.makedirs(r".\Model", exist_ok=True)
 
     # Send Request to Fetch File from Huggingface Repository
     response = requests.get(f"https://huggingface.co/{repo_name}/resolve/main/{file_name}", stream=True)
@@ -37,8 +37,9 @@ content = requests.get(f"https://huggingface.co/{repo_name}/tree/main/").text
 # Initialize List for Storing Found File Names 
 file_names = []
 
-# Initialize Variable for Model Type
+# Initialize Variable for Model Type and Tokenizer Method
 model_type = None
+tokenizer_method = None
 
 # Loop Over All Lines
 for line in content.split("\n"):
@@ -54,6 +55,12 @@ for line in content.split("\n"):
         # Append the File Name to List
         file_names.append(file_name)
 
+        # Determine Tokenizer Method
+        if file_name == "tokenizer.json":
+            tokenizer_method = "regular"
+        elif (file_name == "merges.txt" or file_name == "vocab.json") and tokenizer_method == None:
+            tokenizer_method = "fallback"
+
         # Determine Model Type Based on File Extension
         if file_name.endswith(".safetensors"):
             model_type = "safetensors"
@@ -66,8 +73,10 @@ for file_name in file_names:
     if file_name == "config.json":
         download_file(file_name)
 
-    # Download Model's Tokenizer File
-    elif file_name == "tokenizer.json":
+    # Download Model's Tokenizer Depending on Tokenizer Method
+    if file_name == "tokenizer.json" and tokenizer_method == "regular":
+        download_file(file_name)
+    elif (file_name == "merges.txt" or file_name == "vocab.json") and tokenizer_method == "fallback":
         download_file(file_name)
 
     # Download Specific Model Files Depending on Model Type

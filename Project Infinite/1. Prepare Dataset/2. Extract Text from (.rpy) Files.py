@@ -3,10 +3,10 @@ import os
 import re
 
 # Define the Directory for Input Files
-input_dir = ".\Files (.rpy)"
+input_dir = r".\Files (.rpy)"
 
 # Define the Directory for Output Files
-output_dir = ".\Files (.txt)"
+output_dir = r".\Files (.txt)"
 
 # Define the Minimum Number of Lines for Saving Content
 threshold = 10
@@ -96,7 +96,7 @@ for root, dirs, files in os.walk(input_dir):
                     current_indentation = len(line) - len(line_stripped)
 
                     # Skip Empty Line
-                    if len(line) == 0:
+                    if len(line_stripped) == 0:
                         continue
 
                     # Save Contents If Another Label is Found and Not Inside a Quote

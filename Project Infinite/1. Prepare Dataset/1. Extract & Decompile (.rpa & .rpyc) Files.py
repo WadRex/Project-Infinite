@@ -3,10 +3,10 @@ import os
 import subprocess
 
 # Define the Directory for Input Files
-input_dir = ".\Files (.rpa & .rpyc)"
+input_dir = r".\Files (.rpa & .rpyc)"
 
 # Define the Directory for Output Files
-output_dir = ".\Files (.rpy)"
+output_dir = r".\Files (.rpy)"
 
 # Check if Input Directory Exists
 if not os.path.exists(input_dir):

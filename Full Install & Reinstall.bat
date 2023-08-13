@@ -73,16 +73,23 @@ for /d %%D in ("%~dp0Project Infinite\1. Prepare Dataset\Files (.txt)\*") do (
 )
 
 for %%F in ("%~dp0Project Infinite\2. Train Model\*.*") do (
-    if not "%%~nxF"=="1. Download Model.py" del "%%F"
+    if not "%%~nxF"=="1. Download Model.py" if not "%%~nxF"=="2. Create Dataset.py" del "%%F"
 )
 for /d %%D in ("%~dp0Project Infinite\2. Train Model\*") do (
-    if /i not "%%~nxD"=="Model" rd /s /q "%%D"
+    if /i not "%%~nxD"=="Model"  if /i not "%%~nxD"=="Dataset" rd /s /q "%%D"
 )
 
 for %%F in ("%~dp0Project Infinite\2. Train Model\Model\*.*") do (
     if not "%%~nxF"==".gitkeep" del "%%F"
 )
 for /d %%D in ("%~dp0Project Infinite\2. Train Model\Model\*") do (
+    rd /s /q "%%D"
+)
+
+for %%F in ("%~dp0Project Infinite\2. Train Model\Dataset\*.*") do (
+    if not "%%~nxF"==".gitkeep" del "%%F"
+)
+for /d %%D in ("%~dp0Project Infinite\2. Train Model\Dataset\*") do (
     rd /s /q "%%D"
 )
 
