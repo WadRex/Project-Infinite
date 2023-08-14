@@ -18,8 +18,9 @@ character_counts = {}
 lines_found = 0
 lines_written = 0
 
-# Initialize Variable to Keep Temporary Character Name
+# Initialize Variable to Keep Temporary and Previous Character Name
 temp_character_name = None
+prev_character_name = None
 
 # Define Function to Save Content of a Label Block
 def save_contents():
@@ -185,8 +186,8 @@ for root, dirs, files in os.walk(input_dir):
                             # Remove Trailing Space Inside the Double Quotes
                             line_untrailed = re.sub(r'^(\w+\s\".*?)(\s)\"$', r'\1"', line_uncurly)
 
-                            # Keywords to Skip to Minimize False Positives
-                            skip_keywords = ["play", "call", "show", "scene", "pstring", "track", "madechoice", "textbutton", "text", "bar", "style_prefix", "style", "add", "background", "label", "key", "layout", "properties", "firstrun", "with", "text_color", "input", "color", "font", "currentuser", "process_list", "if", "define", "for"]
+                            # List of Keywords to Skip
+                            skip_keywords = ["text"]
 
                             # Skip Lines Starting with Keywords
                             if any(line_untrailed.startswith(keyword) for keyword in skip_keywords):
@@ -200,16 +201,31 @@ for root, dirs, files in os.walk(input_dir):
                                 # Extract the Character Name and the Quote
                                 character_name, quote = character_quote.groups()
 
-                                # Handle 'extend' Exception by Appending Quote Only
+                                # List of Character Names to Keep -> Add Functionality Later
+                                correct_character_names = ["m", " mc", "y", "n", "s", "ny"]
+
+                                # If List Contains Character Names, Save Only Them
+                                if correct_character_names != []:
+                                    # Skip Lines Starting with Wrong Character Names
+                                    if not any(character_name == character for character in correct_character_names):
+                                        continue
+
+                                # Handle 'extend' Exception by Appending Previous Character Name and Quote
                                 if character_name == "extend":
-                                    label_block_contents.append(f"\"{quote}\"")
-                                
+                                    label_block_contents.append(f"{prev_character_name} \"{quote}\"")
+
+                                    # Update Quote Count for the Character
+                                    character_counts[prev_character_name] = character_counts.get(prev_character_name, 0) + 1
+
                                 # Append the Character's Name and Quote to Block Contents
                                 else:                                    
                                     label_block_contents.append(f"{character_name} \"{quote}\"")
 
                                     # Update Quote Count for the Character
                                     character_counts[character_name] = character_counts.get(character_name, 0) + 1
+                                
+                                # Set Previous Character Name to Current in Order to Handle Possible 'extend' Exception in the Next Iteration
+                                prev_character_name = character_name
                             else:
                                 # If Not a Character Quote, Attempt to Match Narration Pattern
                                 narration_quote = re.match(r'^"(.*?)"(\s*if .+:)?$', line_untrailed)

@@ -1,7 +1,8 @@
 # Import Required Libraries
-import requests
 import os
+import requests
 import tqdm
+import huggingface_hub
 
 # Define Function to Download a Specific File
 def download_file(file_name):
@@ -31,43 +32,30 @@ def download_file(file_name):
 # Define the Target Repository Name
 repo_name = "huggyllama/llama-7b"
 
-# Define the Target Repository Name
-content = requests.get(f"https://huggingface.co/{repo_name}/tree/main/").text
-
-# Initialize List for Storing Found File Names 
-file_names = []
-
 # Initialize Variable for Model Type and Tokenizer Method
 model_type = None
 tokenizer_method = None
 
-# Loop Over All Lines
-for line in content.split("\n"):
-    # Identify Lines with File Links
-    if f'/{repo_name}/resolve/main/' in line:
-        # Determine Start and End of File Link
-        start = line.find(f'/{repo_name}/resolve/main/')
-        end = line.find('"', start)
+# Initialize Variable for Storing Repo File Names 
+file_names = huggingface_hub.list_repo_files(repo_name)
 
-        # Extract the File Name from Link
-        file_name = line[start:end].rsplit('/', 1)[-1]
+# Loop Over All File Names
+for file_name in file_names:
+    # Determine Tokenizer Method
+    if file_name == "tokenizer.json":
+        tokenizer_method = "regular"
+    elif file_name == "tokenizer.model" and tokenizer_method != "regular":
+        tokenizer_method = "model"
+    elif (file_name == "merges.txt" or file_name == "vocab.json") and (tokenizer_method != "regular" and tokenizer_method != "model"):
+        tokenizer_method = "fallback"
 
-        # Append the File Name to List
-        file_names.append(file_name)
+    # Determine Model Type Based on File Extension
+    if file_name.endswith(".safetensors"):
+        model_type = "safetensors"
+    elif file_name.endswith(".bin") and model_type != "safetensors":
+        model_type = "bin"
 
-        # Determine Tokenizer Method
-        if file_name == "tokenizer.json":
-            tokenizer_method = "regular"
-        elif (file_name == "merges.txt" or file_name == "vocab.json") and tokenizer_method == None:
-            tokenizer_method = "fallback"
-
-        # Determine Model Type Based on File Extension
-        if file_name.endswith(".safetensors"):
-            model_type = "safetensors"
-        elif file_name.endswith(".bin") and model_type == None:
-            model_type = "bin"
-
-# Process Each File Name Retrieved
+# Loop Over All File Names
 for file_name in file_names:
     # Download Model's Config File
     if file_name == "config.json":
@@ -75,6 +63,8 @@ for file_name in file_names:
 
     # Download Model's Tokenizer Depending on Tokenizer Method
     if file_name == "tokenizer.json" and tokenizer_method == "regular":
+        download_file(file_name)
+    if file_name == "tokenizer.model" and tokenizer_method == "model":
         download_file(file_name)
     elif (file_name == "merges.txt" or file_name == "vocab.json") and tokenizer_method == "fallback":
         download_file(file_name)

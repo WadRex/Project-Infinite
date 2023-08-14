@@ -73,10 +73,10 @@ for /d %%D in ("%~dp0Project Infinite\1. Prepare Dataset\Files (.txt)\*") do (
 )
 
 for %%F in ("%~dp0Project Infinite\2. Train Model\*.*") do (
-    if not "%%~nxF"=="1. Download Model.py" if not "%%~nxF"=="2. Create Dataset.py" del "%%F"
+    if not "%%~nxF"=="1. Download Model.py" if not "%%~nxF"=="2. Create Dataset.py" if not "%%~nxF"=="3. Train Model.py" del "%%F"
 )
 for /d %%D in ("%~dp0Project Infinite\2. Train Model\*") do (
-    if /i not "%%~nxD"=="Model"  if /i not "%%~nxD"=="Dataset" rd /s /q "%%D"
+    if /i not "%%~nxD"=="Model"  if /i not "%%~nxD"=="Dataset" if /i not "%%~nxD"=="Adapter" rd /s /q "%%D"
 )
 
 for %%F in ("%~dp0Project Infinite\2. Train Model\Model\*.*") do (
@@ -90,6 +90,13 @@ for %%F in ("%~dp0Project Infinite\2. Train Model\Dataset\*.*") do (
     if not "%%~nxF"==".gitkeep" del "%%F"
 )
 for /d %%D in ("%~dp0Project Infinite\2. Train Model\Dataset\*") do (
+    rd /s /q "%%D"
+)
+
+for %%F in ("%~dp0Project Infinite\2. Train Model\Adapter\*.*") do (
+    if not "%%~nxF"==".gitkeep" del "%%F"
+)
+for /d %%D in ("%~dp0Project Infinite\2. Train Model\Adapter\*") do (
     rd /s /q "%%D"
 )
 
@@ -109,7 +116,7 @@ CALL .\Miniconda\Scripts\activate.bat .\Miniconda\envs
 echo y | .\Miniconda\Scripts\conda.exe install cudatoolkit==11.8.0 -c conda-forge
 
 echo y | python -m pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --extra-index-url https://download.pytorch.org/whl/cu118
-echo y | python -m pip install transformers==4.31.0 sentencepiece==0.1.99 protobuf==4.24.0
+echo y | python -m pip install transformers==4.31.0 sentencepiece==0.1.99 protobuf==4.24.0 accelerate==0.21.0 peft==0.4.0 humanize==4.7.0 datasets==2.14.4 matplotlib==3.7.2
 echo y | python -m pip install bitsandbytes==0.41.1 --prefer-binary --extra-index-url https://jllllll.github.io/bitsandbytes-windows-webui
 echo y | python -m pip install unrpa==2.3.0
 
